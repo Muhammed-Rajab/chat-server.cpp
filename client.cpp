@@ -13,10 +13,19 @@ struct JoinedEvent
 {
     std::string nickname;
 
-    static JoinedEvent fromJson(const nlohmann::json &j)
+    static JoinedEvent fromJson(const json &j)
     {
         JoinedEvent e;
-        j.at("nickname").get_to(e.nickname);
+
+        if (j.contains("nickname") && j["nickname"].is_string())
+        {
+            e.nickname = j["nickname"];
+        }
+        else
+        {
+            throw std::invalid_argument("Invalid or missing 'nickname' field in JSON for JoinedEvent.");
+        }
+
         return e;
     }
 };
@@ -25,10 +34,19 @@ struct LeftEvent
 {
     std::string nickname;
 
-    static LeftEvent fromJson(const nlohmann::json &j)
+    static LeftEvent fromJson(const json &j)
     {
         LeftEvent e;
-        j.at("nickname").get_to(e.nickname);
+
+        if (j.contains("nickname") && j["nickname"].is_string())
+        {
+            e.nickname = j["nickname"];
+        }
+        else
+        {
+            throw std::invalid_argument("Invalid or missing 'nickname' field in JSON for LeftEvent.");
+        }
+
         return e;
     }
 };
@@ -38,11 +56,28 @@ struct MessageEvent
     std::string sender;
     std::string data;
 
-    static MessageEvent fromJson(const nlohmann::json &j)
+    static MessageEvent fromJson(const json &j)
     {
         MessageEvent e;
-        j.at("sender").get_to(e.sender);
-        j.at("data").get_to(e.data);
+
+        if (j.contains("sender") && j["sender"].is_string())
+        {
+            e.sender = j["sender"].get<std::string>();
+        }
+        else
+        {
+            throw std::invalid_argument("Invalid or missing 'sender' field in JSON for MessageEvent.");
+        }
+
+        if (j.contains("data") && j["data"].is_string())
+        {
+            e.data = j["data"].get<std::string>();
+        }
+        else
+        {
+            throw std::invalid_argument("Invalid or missing 'data' field in JSON for MessageEvent.");
+        }
+
         return e;
     }
 };
@@ -63,24 +98,38 @@ void receiveMessages(int socket_fd)
             break;
         }
 
-        // TODO: take the buffer, parse it to event, and do stuff
         json eventJson = json::parse(buffer);
         Event event = Event::fromJson(eventJson);
 
         if (event.type == "joined")
         {
-            JoinedEvent je = JoinedEvent::fromJson(event.payload);
+            json payloadJSON = json::parse(event.payload);
+            JoinedEvent je = JoinedEvent::fromJson(payloadJSON);
+
+            // TODO: pretty print that user joined
+            std::cout << je.nickname << " joined the chat\n";
         }
         else if (event.type == "left")
         {
-            LeftEvent le = LeftEvent::fromJson(event.payload);
+            json payloadJSON = json::parse(event.payload);
+            LeftEvent le = LeftEvent::fromJson(payloadJSON);
+
+            // TODO: pretty print that user left
+            std::cout << le.nickname << " left the chat\n";
         }
         else if (event.type == "message")
         {
-            MessageEvent me = MessageEvent::fromJson(event.payload);
-        }
+            json payloadJSON = json::parse(event.payload);
+            MessageEvent me = MessageEvent::fromJson(payloadJSON);
 
-        std::cout << buffer << std::endl;
+            // TODO: pretty print user message
+            std::cout << me.sender << " said: " << me.data << "\n";
+        }
+        else
+        {
+            std::cout << "unknown event received. inspection advised.\n";
+            std::cout << buffer << "\n";
+        }
     }
 }
 

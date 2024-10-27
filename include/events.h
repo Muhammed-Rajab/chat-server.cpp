@@ -19,10 +19,29 @@ struct Event
 
     static Event fromJson(const nlohmann::json &j)
     {
-        Event e;
-        j.at("type").get_to(e.type);
-        j.at("payload").get_to(e.payload);
-        return e;
+        Event event;
+
+        // Check if "type" exists and is a string
+        if (j.contains("type") && j["type"].is_string())
+        {
+            event.type = j["type"].get<std::string>();
+        }
+        else
+        {
+            throw std::invalid_argument("Invalid or missing 'type' field in JSON.");
+        }
+
+        // Check if "payload" exists and is a string
+        if (j.contains("payload") && j["payload"].is_string())
+        {
+            event.payload = j["payload"].get<std::string>();
+        }
+        else
+        {
+            throw std::invalid_argument("Invalid or missing 'payload' field in JSON.");
+        }
+
+        return event;
     }
 };
 
