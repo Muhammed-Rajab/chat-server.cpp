@@ -62,7 +62,7 @@ int main()
 
     sock::server::startListening(server_fd);
 
-    Logger::logf(Logger::SUCCESS, "server started running at %d", PORT);
+    Logger::logf(Logger::SUCCESS, "tcp server started running at 127.0.0.1:%d", PORT);
 
     Room hall{"hall"};
 
