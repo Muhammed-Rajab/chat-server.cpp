@@ -15,12 +15,12 @@ void checkAndExit(bool condition, char *message, int errorCode = EXIT_FAILURE)
     }
 }
 
-namespace sock::core
+namespace sock::server
 {
-    int initializeSocket()
+    int initialize()
     {
         int fd = socket(AF_INET, SOCK_STREAM, 0);
-        checkAndExit(fd <= 0, "socket intialization failed");
+        checkAndExit(fd < 0, "socket intialization failed");
 
         int opt = 1;
         setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
@@ -28,7 +28,7 @@ namespace sock::core
         return fd;
     }
 
-    void bindSocket(const int fd, sockaddr_in &address, const int port)
+    void bind(const int fd, sockaddr_in &address, const int port)
     {
         address.sin_port = htons(port);
         address.sin_family = AF_INET;
@@ -58,17 +58,17 @@ int main()
     struct sockaddr_in address;
     int addrlen = sizeof(address);
 
-    server_fd = sock::core::initializeSocket();
+    server_fd = sock::server::initialize();
 
-    sock::core::bindSocket(server_fd, address, PORT);
+    sock::server::bind(server_fd, address, PORT);
 
-    sock::core::startListening(server_fd);
+    sock::server::startListening(server_fd);
 
     std::cout << "server listening on port " << PORT << "\n";
 
     while (true)
     {
-        int newsocket_fd = sock::core::acceptConnection(server_fd, address);
+        int newsocket_fd = sock::server::acceptConnection(server_fd, address);
 
         char buffer[1024] = {0};
         read(newsocket_fd, buffer, 1024);

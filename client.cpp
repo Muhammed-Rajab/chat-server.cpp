@@ -1,7 +1,68 @@
 #include <iostream>
+#include <cstring>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+
+void checkAndExit(bool condition, char *message, int errorCode = EXIT_FAILURE)
+{
+    if (condition)
+    {
+        std::cerr << message;
+        exit(errorCode);
+    }
+}
+
+namespace sock::client
+{
+    int initialize()
+    {
+        int fd = socket(AF_INET, SOCK_STREAM, 0);
+        checkAndExit(fd < 0, "socket initialization failed\n");
+        return fd;
+    }
+
+    sockaddr_in getSocketAddrIn(const int port, const char *address)
+    {
+        sockaddr_in server_addr;
+        server_addr.sin_family = AF_INET;
+        server_addr.sin_port = htons(port);
+        checkAndExit(inet_pton(AF_INET, address, &server_addr.sin_addr) <= 0, "invalid address\n");
+
+        return server_addr;
+    }
+
+    void connectToServer(int fd, sockaddr_in &server_addr)
+    {
+        checkAndExit(connect(fd, (sockaddr *)(&server_addr), sizeof(server_addr)) < 0, "connection failed");
+    }
+
+    void sendMessage(int fd, const char *message)
+    {
+        send(fd, message, strlen(message), 0);
+    }
+
+    void receiveMessage(int fd, char *buffer, ssize_t buffer_size)
+    {
+        read(fd, buffer, buffer_size);
+    }
+
+}
+
+#define PORT 8080
 
 int main()
 {
-    std::cout << "HELLO CLIENT!\n";
+
+    int sock = sock::client::initialize();
+
+    sockaddr_in server_addr = sock::client::getSocketAddrIn(PORT, "127.0.0.1");
+
+    sock::client::connectToServer(sock, server_addr);
+
+    sock::client::sendMessage(sock, "working fine\n");
+
+    close(sock);
+
     return EXIT_SUCCESS;
 }
