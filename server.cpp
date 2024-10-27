@@ -46,7 +46,7 @@ void handleClient(Room &room, int socket_fd)
         {
             std::ostringstream oss;
             oss << info.nickname << ": " << buffer;
-            Logger::logf(Logger::MESSAGE, "%s@%s said: %s", info.nickname.c_str(), room.name.c_str(), buffer);
+            Logger::logf(Logger::EVENT, "%s@%s said: %s", info.nickname.c_str(), room.name.c_str(), buffer);
 
             room.broadcast({
                                "message",

@@ -17,7 +17,7 @@ namespace Logger
         DEBUG,
         INFO,
         SUCCESS,
-        MESSAGE
+        EVENT
     };
 
     void log(Level level, const std::string &message)
@@ -42,8 +42,8 @@ namespace Logger
         case SUCCESS:
             std::cout << "\033[92m" << "[SUCCESS]";
             break;
-        case MESSAGE:
-            std::cout << "\033[35m" << "[MESSAGE]";
+        case EVENT:
+            std::cout << "\033[35m" << "[EVENT]";
             break;
         }
 
