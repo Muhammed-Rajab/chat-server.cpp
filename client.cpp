@@ -1,8 +1,13 @@
 #include <iostream>
 #include <thread>
+
 #include "client.h"
+#include "events.h"
+#include "external/json.hpp"
 
 #define PORT 8080
+
+using json = nlohmann::json;
 
 void receiveMessages(int socket_fd)
 {
@@ -29,7 +34,13 @@ void sendMessages(int socket_fd)
     while (true)
     {
         std::getline(std::cin, message);
-        if (sock::client::sendTo(socket_fd, message) == -1)
+        std::string event = Event{
+            "message",
+            message}
+                                .toJson()
+                                .dump(2);
+
+        if (sock::client::sendTo(socket_fd, event) == -1)
         {
             std::cerr << "Error sending message.\n";
             break;
