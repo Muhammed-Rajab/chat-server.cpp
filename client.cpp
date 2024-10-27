@@ -9,6 +9,44 @@
 
 using json = nlohmann::json;
 
+struct JoinedEvent
+{
+    std::string nickname;
+
+    static JoinedEvent fromJson(const nlohmann::json &j)
+    {
+        JoinedEvent e;
+        j.at("nickname").get_to(e.nickname);
+        return e;
+    }
+};
+
+struct LeftEvent
+{
+    std::string nickname;
+
+    static LeftEvent fromJson(const nlohmann::json &j)
+    {
+        LeftEvent e;
+        j.at("nickname").get_to(e.nickname);
+        return e;
+    }
+};
+
+struct MessageEvent
+{
+    std::string sender;
+    std::string data;
+
+    static MessageEvent fromJson(const nlohmann::json &j)
+    {
+        MessageEvent e;
+        j.at("sender").get_to(e.sender);
+        j.at("data").get_to(e.data);
+        return e;
+    }
+};
+
 void receiveMessages(int socket_fd)
 {
     const int BUFFER_SIZE = 1024;
@@ -26,6 +64,22 @@ void receiveMessages(int socket_fd)
         }
 
         // TODO: take the buffer, parse it to event, and do stuff
+        json eventJson = json::parse(buffer);
+        Event event = Event::fromJson(eventJson);
+
+        if (event.type == "joined")
+        {
+            JoinedEvent je = JoinedEvent::fromJson(event.payload);
+        }
+        else if (event.type == "left")
+        {
+            LeftEvent le = LeftEvent::fromJson(event.payload);
+        }
+        else if (event.type == "message")
+        {
+            MessageEvent me = MessageEvent::fromJson(event.payload);
+        }
+
         std::cout << buffer << std::endl;
     }
 }
