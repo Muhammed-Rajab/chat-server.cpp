@@ -7,8 +7,11 @@
 #include "server.h"
 #include "rooms.h"
 #include "logger.h"
+#include "external/json.hpp"
 
 #define PORT 8080
+
+using json = nlohmann::json;
 
 void handleClient(Room &room, int socket_fd)
 {
