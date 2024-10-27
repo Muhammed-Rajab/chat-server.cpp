@@ -2,6 +2,7 @@
 #define ROOMS_4_CHAT_SERVER_H
 
 #include <string>
+#include <sstream>
 #include <mutex>
 #include <thread>
 #include <sys/socket.h>
@@ -28,11 +29,16 @@ public:
         this->name = name;
     }
 
-    void add(int fd, std::string nickname)
+    ClientInfo add(int fd, std::string nickname)
     {
         std::lock_guard<std::mutex> lock(mutex_);
         client_infos[fd] = ClientInfo{fd, nickname};
+
         // TODO: broadcast to everyone
+        std::ostringstream oss;
+        oss << nickname << " has joined\n";
+
+        return client_infos[fd];
     }
 
     void remove(int fd)
@@ -42,8 +48,13 @@ public:
 
         if (it != client_infos.end())
         {
+            ClientInfo info = it->second;
             client_infos.erase(fd);
+
             // TODO: broadcast to everyone
+            std::ostringstream oss;
+            oss << info.nickname << " has left\n";
+            this->broadcast(oss.str(), fd);
         }
     }
 
@@ -58,6 +69,13 @@ public:
                 send(info.second.fd, message.c_str(), message.size(), 0);
             }
         }
+    }
+
+    ClientInfo getInfo(int fd)
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        auto it = this->client_infos.at(fd);
+        return it;
     }
 };
 

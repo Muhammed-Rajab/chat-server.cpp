@@ -9,6 +9,43 @@
 
 #define PORT 8080
 
+void handleClient(Room &room, int socket_fd)
+{
+    ClientInfo info = room.getInfo(socket_fd);
+
+    while (true)
+    {
+        // DO CLIENT HANDLING SHIT
+        // if receive message, broadcast it
+        // if something wrong happens, do removal here.
+        char buffer[1024] = {0};
+
+        int bytes_received = sock::server::readFrom(socket_fd, buffer, 1024);
+
+        if (bytes_received == 0)
+        {
+            // client has disconnected
+            std::cout << "client disconnected: " << info.nickname << "\n";
+            room.remove(socket_fd);
+            close(socket_fd);
+            break;
+        }
+        else if (bytes_received == -1)
+        {
+            std::cerr << "error reading from client\n";
+            room.remove(socket_fd);
+            close(socket_fd);
+            break;
+        }
+        else
+        {
+            std::ostringstream oss;
+            oss << info.nickname << ": " << buffer;
+            room.broadcast(oss.str(), socket_fd);
+        }
+    }
+}
+
 int main()
 {
     int server_fd;
@@ -47,7 +84,12 @@ int main()
 
         // create a new thread to listen to client
         // add client to room(now hall)
-        hall.add(newsocket_fd, nickname);
+        ClientInfo info = hall.add(newsocket_fd, nickname);
+        std::cout << "client joined: " << nickname << "\n";
+
+        // CREATE A THREAD TO HANDLE CLIENT MESSAGES
+        std::thread clientThread(handleClient, std::ref(hall), newsocket_fd);
+        clientThread.detach();
     }
 
     close(server_fd);
