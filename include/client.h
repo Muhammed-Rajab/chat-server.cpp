@@ -1,11 +1,11 @@
 #ifndef CLIENT_4_CHAT_SERVER_H
 #define CLIENT_4_CHAT_SERVER_H
 
+#include "utils.h"
 #include <cstring>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include "utils.h"
 
 namespace sock::client
 {
