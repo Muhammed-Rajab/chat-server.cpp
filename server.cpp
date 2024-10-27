@@ -11,17 +11,12 @@
 
 #define PORT 8080
 
-// using json = nlohmann::json;
-
 void handleClient(Room &room, int socket_fd)
 {
     ClientInfo info = room.getInfo(socket_fd);
 
     while (true)
     {
-        // DO CLIENT HANDLING SHIT
-        // if receive message, broadcast it
-        // if something wrong happens, do removal here.
         char buffer[1024] = {0};
 
         int bytes_received = sock::server::readFrom(socket_fd, buffer, 1024);
@@ -36,6 +31,7 @@ void handleClient(Room &room, int socket_fd)
         }
         else if (bytes_received == -1)
         {
+            // TODO: log the error
             Logger::log(Logger::ERROR, "error from reading client");
             Logger::logf(Logger::INFO, "client disconnected from '%s': %s", room.name.c_str(), info.nickname.c_str());
             room.remove(socket_fd);
@@ -44,8 +40,6 @@ void handleClient(Room &room, int socket_fd)
         }
         else
         {
-            std::ostringstream oss;
-            oss << info.nickname << ": " << buffer;
             Logger::logf(Logger::EVENT, "%s@%s said: %s", info.nickname.c_str(), room.name.c_str(), buffer);
 
             json eventJson = json::parse(buffer);
@@ -62,6 +56,8 @@ void handleClient(Room &room, int socket_fd)
                                },
                                socket_fd);
             }
+
+            // TODO: handle per-user events, zB: get active users list, etc.
         }
     }
 }
