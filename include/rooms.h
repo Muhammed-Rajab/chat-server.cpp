@@ -9,6 +9,9 @@
 #include <unordered_map>
 
 #include "server.h"
+#include "events.h"
+
+using json = nlohmann::json;
 
 struct ClientInfo
 {
@@ -39,7 +42,12 @@ public:
             oss << nickname << " has joined\n";
         }
 
-        this->broadcast(oss.str(), fd);
+        this->broadcast({"joined",
+                         json{
+                             {"nickname", nickname},
+                         }
+                             .dump(2)},
+                        fd);
 
         return client_infos[fd];
     }
@@ -47,22 +55,28 @@ public:
     void remove(int fd)
     {
         std::ostringstream oss;
+        ClientInfo info;
         {
             std::lock_guard<std::mutex> lock(mutex_);
             auto it = client_infos.find(fd);
 
             if (it != client_infos.end())
             {
-                ClientInfo info = it->second;
+                info = it->second;
                 client_infos.erase(fd);
 
                 oss << info.nickname << " has left\n";
             }
         }
-        this->broadcast(oss.str(), fd);
+        this->broadcast({"left",
+                         json{
+                             {"nickname", info.nickname},
+                         }
+                             .dump(2)},
+                        fd);
     }
 
-    void broadcast(std::string message, int sender_fd)
+    void broadcast(Event event, int sender_fd)
     {
         std::lock_guard<std::mutex> lock(mutex_);
 
@@ -70,7 +84,8 @@ public:
         {
             if (info.first != sender_fd)
             {
-                send(info.second.fd, message.c_str(), message.size(), 0);
+                std::string data = event.toJson().dump(2);
+                send(info.second.fd, data.c_str(), data.size(), 0);
             }
         }
     }

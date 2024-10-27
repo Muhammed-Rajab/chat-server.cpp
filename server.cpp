@@ -11,7 +11,7 @@
 
 #define PORT 8080
 
-using json = nlohmann::json;
+// using json = nlohmann::json;
 
 void handleClient(Room &room, int socket_fd)
 {
@@ -48,7 +48,14 @@ void handleClient(Room &room, int socket_fd)
             oss << info.nickname << ": " << buffer;
             Logger::logf(Logger::MESSAGE, "%s@%s said: %s", info.nickname.c_str(), room.name.c_str(), buffer);
 
-            room.broadcast(oss.str(), socket_fd);
+            room.broadcast({
+                               "message",
+                               json{
+                                   {"sender", info.nickname},
+                                   {"data", buffer}}
+                                   .dump(2),
+                           },
+                           socket_fd);
         }
     }
 }
