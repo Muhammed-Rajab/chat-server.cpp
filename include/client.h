@@ -31,9 +31,9 @@ namespace sock::client
         checkAndExit(connect(fd, (sockaddr *)(&server_addr), sizeof(server_addr)) < 0, "connection failed");
     }
 
-    int sendTo(int fd, const char *message)
+    int sendTo(int fd, std::string &message)
     {
-        return send(fd, message, strlen(message), 0);
+        return send(fd, message.c_str(), message.size(), 0);
     }
 
     int readFrom(int fd, char *buffer, ssize_t buffer_size)
