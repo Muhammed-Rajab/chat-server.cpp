@@ -31,31 +31,34 @@ public:
 
     ClientInfo add(int fd, std::string nickname)
     {
-        std::lock_guard<std::mutex> lock(mutex_);
-        client_infos[fd] = ClientInfo{fd, nickname};
-
-        // TODO: broadcast to everyone
         std::ostringstream oss;
-        oss << nickname << " has joined\n";
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            client_infos[fd] = ClientInfo{fd, nickname};
+            oss << nickname << " has joined\n";
+        }
+
+        this->broadcast(oss.str(), fd);
 
         return client_infos[fd];
     }
 
     void remove(int fd)
     {
-        std::lock_guard<std::mutex> lock(mutex_);
-        auto it = client_infos.find(fd);
-
-        if (it != client_infos.end())
+        std::ostringstream oss;
         {
-            ClientInfo info = it->second;
-            client_infos.erase(fd);
+            std::lock_guard<std::mutex> lock(mutex_);
+            auto it = client_infos.find(fd);
 
-            // TODO: broadcast to everyone
-            std::ostringstream oss;
-            oss << info.nickname << " has left\n";
-            this->broadcast(oss.str(), fd);
+            if (it != client_infos.end())
+            {
+                ClientInfo info = it->second;
+                client_infos.erase(fd);
+
+                oss << info.nickname << " has left\n";
+            }
         }
+        this->broadcast(oss.str(), fd);
     }
 
     void broadcast(std::string message, int sender_fd)
