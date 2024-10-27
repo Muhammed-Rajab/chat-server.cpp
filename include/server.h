@@ -29,9 +29,9 @@ namespace sock::server
         checkAndExit(bind(fd, (struct sockaddr *)(&address), sizeof(address)) < 0, "bind failed\n");
     }
 
-    void startListening(const int fd)
+    void startListening(const int fd, int backLog = 10)
     {
-        checkAndExit(listen(fd, 3) < 0, "listen failed\n");
+        checkAndExit(listen(fd, backLog) < 0, "listen failed\n");
     }
 
     int acceptConnection(const int fd, sockaddr_in &address)
