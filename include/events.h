@@ -16,6 +16,14 @@ struct Event
             {"payload", this->payload},
         };
     }
+
+    static Event fromJson(const nlohmann::json &j)
+    {
+        Event e;
+        j.at("type").get_to(e.type);
+        j.at("payload").get_to(e.payload);
+        return e;
+    }
 };
 
 #endif

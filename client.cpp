@@ -24,6 +24,8 @@ void receiveMessages(int socket_fd)
             std::cout << "Server disconnected or error occurred.\n";
             break;
         }
+
+        // TODO: take the buffer, parse it to event, and do stuff
         std::cout << buffer << std::endl;
     }
 }

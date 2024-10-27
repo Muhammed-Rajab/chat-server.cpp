@@ -48,14 +48,20 @@ void handleClient(Room &room, int socket_fd)
             oss << info.nickname << ": " << buffer;
             Logger::logf(Logger::EVENT, "%s@%s said: %s", info.nickname.c_str(), room.name.c_str(), buffer);
 
-            room.broadcast({
-                               "message",
-                               json{
-                                   {"sender", info.nickname},
-                                   {"data", buffer}}
-                                   .dump(2),
-                           },
-                           socket_fd);
+            json eventJson = json::parse(buffer);
+            Event event = Event::fromJson(eventJson);
+
+            if (event.type == "message")
+            {
+                room.broadcast({
+                                   "message",
+                                   json{
+                                       {"sender", info.nickname},
+                                       {"data", event.payload}}
+                                       .dump(2),
+                               },
+                               socket_fd);
+            }
         }
     }
 }
