@@ -70,16 +70,6 @@ int main()
     {
         int newsocket_fd = sock::server::acceptConnection(server_fd, address);
 
-        /*
-        TODO: GET CONFIGURATION FROM USER
-        intially, get nickname from the user
-        save the nickname and socket stuff in a map or something?
-        broadcast messages:
-            - user join
-            - user left
-            - user send messages
-        */
-
         // max nickname length 30
         char nickname[30] = {0};
         int NICKNAME_MAX_SIZE = 30;
