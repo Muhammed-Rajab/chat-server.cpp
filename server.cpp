@@ -3,7 +3,9 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+
 #include "server.h"
+#include "rooms.h"
 
 #define PORT 8080
 
@@ -21,20 +23,31 @@ int main()
 
     std::cout << "server listening on port " << PORT << "\n";
 
+    Room hall{"hall"};
+
     while (true)
     {
         int newsocket_fd = sock::server::acceptConnection(server_fd, address);
+        std::cout << "new connection!\n";
 
-        char buffer[1024] = {0};
-        int BUFFER_SIZE = 1024;
-        sock::server::readFrom(newsocket_fd, buffer, BUFFER_SIZE);
+        /*
+        TODO: GET CONFIGURATION FROM USER
+        intially, get nickname from the user
+        save the nickname and socket stuff in a map or something?
+        broadcast messages:
+            - user join
+            - user left
+            - user send messages
+        */
 
-        // std::cout << "client: " << buffer;
+        // max nickname length 30
+        char nickname[30] = {0};
+        int NICKNAME_MAX_SIZE = 30;
+        sock::server::readFrom(newsocket_fd, nickname, NICKNAME_MAX_SIZE);
 
-        const char *message = "send me your location\n";
-        sock::server::sendTo(newsocket_fd, message);
-
-        close(newsocket_fd);
+        // create a new thread to listen to client
+        // add client to room(now hall)
+        hall.add(newsocket_fd, nickname);
     }
 
     close(server_fd);

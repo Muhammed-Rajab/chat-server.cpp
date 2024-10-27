@@ -12,7 +12,15 @@ int main()
 
     sock::client::connectToServer(sock, server_addr);
 
-    sock::client::sendTo(sock, "working fine\n");
+    std::string nickname = "rajab";
+
+    // FIRST SEND NICKNAME
+    // sock::client::sendTo(sock, nickname.c_str());
+    sock::client::sendTo(sock, "hi\n");
+
+    char buffer[1024];
+    sock::client::readFrom(sock, buffer, 1024);
+    std::cout << "from server: " << buffer;
 
     close(sock);
 

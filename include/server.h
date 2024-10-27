@@ -43,14 +43,14 @@ namespace sock::server
         return new_fd;
     }
 
-    void sendTo(int fd, const char *message)
+    int sendTo(int fd, const char *message)
     {
-        send(fd, message, strlen(message), 0);
+        return send(fd, message, strlen(message), 0);
     }
 
-    void readFrom(int fd, char *buffer, ssize_t buffer_size)
+    int readFrom(int fd, char *buffer, ssize_t buffer_size)
     {
-        read(fd, buffer, buffer_size);
+        return read(fd, buffer, buffer_size);
     }
 }
 
