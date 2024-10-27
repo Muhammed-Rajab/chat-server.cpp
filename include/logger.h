@@ -1,0 +1,4 @@
+#ifndef LOGGER_4_CHAT_SERVER_H
+#define LOGGER_4_CHAT_SERVER_H
+
+#endif

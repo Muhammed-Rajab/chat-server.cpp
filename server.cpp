@@ -6,6 +6,7 @@
 
 #include "server.h"
 #include "rooms.h"
+#include "logger.h"
 
 #define PORT 8080
 
