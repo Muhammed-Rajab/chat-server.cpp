@@ -59,14 +59,13 @@ int main()
 
     sock::server::startListening(server_fd);
 
-    std::cout << "server listening on port " << PORT << "\n";
+    Logger::logf(Logger::SUCCESS, "server started running at %d", PORT);
 
     Room hall{"hall"};
 
     while (true)
     {
         int newsocket_fd = sock::server::acceptConnection(server_fd, address);
-        std::cout << "new connection!\n";
 
         /*
         TODO: GET CONFIGURATION FROM USER
@@ -86,7 +85,7 @@ int main()
         // create a new thread to listen to client
         // add client to room(now hall)
         ClientInfo info = hall.add(newsocket_fd, nickname);
-        std::cout << "client joined: " << nickname << "\n";
+        Logger::logf(Logger::INFO, "client connected: %s", nickname);
 
         // CREATE A THREAD TO HANDLE CLIENT MESSAGES
         std::thread clientThread(handleClient, std::ref(hall), newsocket_fd);
