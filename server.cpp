@@ -26,14 +26,15 @@ void handleClient(Room &room, int socket_fd)
         if (bytes_received == 0)
         {
             // client has disconnected
-            std::cout << "client disconnected: " << info.nickname << "\n";
+            Logger::logf(Logger::INFO, "client disconnected from '%s': %s", room.name.c_str(), info.nickname.c_str());
             room.remove(socket_fd);
             close(socket_fd);
             break;
         }
         else if (bytes_received == -1)
         {
-            std::cerr << "error reading from client\n";
+            Logger::log(Logger::ERROR, "error from reading client");
+            Logger::logf(Logger::INFO, "client disconnected from '%s': %s", room.name.c_str(), info.nickname.c_str());
             room.remove(socket_fd);
             close(socket_fd);
             break;
@@ -42,6 +43,8 @@ void handleClient(Room &room, int socket_fd)
         {
             std::ostringstream oss;
             oss << info.nickname << ": " << buffer;
+            Logger::logf(Logger::MESSAGE, "%s@%s said: %s", info.nickname.c_str(), room.name.c_str(), buffer);
+
             room.broadcast(oss.str(), socket_fd);
         }
     }
@@ -85,7 +88,7 @@ int main()
         // create a new thread to listen to client
         // add client to room(now hall)
         ClientInfo info = hall.add(newsocket_fd, nickname);
-        Logger::logf(Logger::INFO, "client connected: %s", nickname);
+        Logger::logf(Logger::INFO, "client joined '%s': %s", hall.name.c_str(), nickname);
 
         // CREATE A THREAD TO HANDLE CLIENT MESSAGES
         std::thread clientThread(handleClient, std::ref(hall), newsocket_fd);

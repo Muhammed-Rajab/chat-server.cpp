@@ -19,9 +19,10 @@ struct ClientInfo
 class Room
 {
 private:
+    std::mutex mutex_;
+
 public:
     std::string name;
-    std::mutex mutex_;
     std::unordered_map<int, ClientInfo> client_infos;
 
     Room(const std::string &name)
