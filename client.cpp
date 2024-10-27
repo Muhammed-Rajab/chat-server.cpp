@@ -12,7 +12,7 @@ int main()
 
     sock::client::connectToServer(sock, server_addr);
 
-    sock::client::sendMessage(sock, "working fine\n");
+    sock::client::sendTo(sock, "working fine\n");
 
     close(sock);
 

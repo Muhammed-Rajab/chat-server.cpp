@@ -26,11 +26,13 @@ int main()
         int newsocket_fd = sock::server::acceptConnection(server_fd, address);
 
         char buffer[1024] = {0};
-        read(newsocket_fd, buffer, 1024);
-        std::cout << "client: " << buffer;
+        int BUFFER_SIZE = 1024;
+        sock::server::readFrom(newsocket_fd, buffer, BUFFER_SIZE);
+
+        // std::cout << "client: " << buffer;
 
         const char *message = "send me your location\n";
-        send(newsocket_fd, message, strlen(message), 0);
+        sock::server::sendTo(newsocket_fd, message);
 
         close(newsocket_fd);
     }

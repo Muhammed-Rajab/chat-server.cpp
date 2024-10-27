@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-void checkAndExit(bool condition, char *message, int errorCode = EXIT_FAILURE)
+void checkAndExit(bool condition, const char *message, int errorCode = EXIT_FAILURE)
 {
     if (condition)
     {

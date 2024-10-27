@@ -31,12 +31,12 @@ namespace sock::client
         checkAndExit(connect(fd, (sockaddr *)(&server_addr), sizeof(server_addr)) < 0, "connection failed");
     }
 
-    void sendMessage(int fd, const char *message)
+    void sendTo(int fd, const char *message)
     {
         send(fd, message, strlen(message), 0);
     }
 
-    void receiveMessage(int fd, char *buffer, ssize_t buffer_size)
+    void readFrom(int fd, char *buffer, ssize_t buffer_size)
     {
         read(fd, buffer, buffer_size);
     }
